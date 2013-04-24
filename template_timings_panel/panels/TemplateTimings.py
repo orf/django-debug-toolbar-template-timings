@@ -21,7 +21,7 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
 
         start_time = time.time()
         result = func(self, *args, **kwargs)
-        time_taken = time.time() - start_time
+        time_taken = int(round((time.time() - start_time) * 1000))
 
         if should_add(name(self)):
             results.timings[key][name(self)] = time_taken

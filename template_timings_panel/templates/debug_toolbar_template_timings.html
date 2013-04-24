@@ -31,7 +31,7 @@
     {% for name, time in template_timings.blocks.items %}
     <tr class="{% cycle 'djDebugOdd' 'djDebugEven' %}">
         <td>{{ name }}</td>
-        <td>{{ time }}</td>
+        <td>{{ time }} ms</td>
     </tr>
     {% endfor %}
     </tbody>
