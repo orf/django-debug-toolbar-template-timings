@@ -1,4 +1,5 @@
 from debug_toolbar.panels import DebugPanel
+from django.conf import settings
 from django.template.base import Template
 from django.template.loader_tags import BlockNode, IncludeNode, ConstantIncludeNode
 import threading
@@ -9,6 +10,12 @@ import collections
 
 results = threading.local()
 IGNORED_TEMPLATES = ["debug_toolbar/*"]
+
+TEMPLATE_TIMINGS_SETTINGS = {
+    'PRINT_TIMINGS': True,
+}
+
+TEMPLATE_TIMINGS_SETTINGS.update(getattr(settings, 'TEMPLATE_TIMINGS_SETTINGS', {}))
 
 
 def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s: s.name):
@@ -25,7 +32,8 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
 
         if should_add(name(self)):
             results.timings[key][name(self)] = time_taken
-            print "%s %s took %s" % (key, name(self), time_taken)
+            if TEMPLATE_TIMINGS_SETTINGS['PRINT_TIMINGS']:
+                print "%s %s took %s" % (key, name(self), time_taken)
 
         return result
 
@@ -54,6 +62,7 @@ class TemplateTimings(DebugPanel):
         return ''
 
     def process_response(self, request, response):
-        print getattr(results, "timings", None)
+        if TEMPLATE_TIMINGS_SETTINGS['PRINT_TIMINGS']:
+            print getattr(results, "timings", None)
         self.record_stats({"template_timings": getattr(results, "timings", None)})
 
