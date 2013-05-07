@@ -12,7 +12,7 @@
     {% for name, time in template_timings.templates.items %}
     <tr class="{% cycle 'djDebugOdd' 'djDebugEven' %}">
         <td>{{ name }}</td>
-        <td>{{ time|floatformat:5 }} ms</td>
+        <td>{{ time }} ms</td>
     </tr>
     {% endfor %}
     </tbody>
@@ -31,7 +31,7 @@
     {% for name, time in template_timings.blocks.items %}
     <tr class="{% cycle 'djDebugOdd' 'djDebugEven' %}">
         <td>{{ name }}</td>
-        <td>{{ time|floatformat:5 }} ms</td>
+        <td>{{ time }} ms</td>
     </tr>
     {% endfor %}
     </tbody>
