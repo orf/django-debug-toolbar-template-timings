@@ -52,6 +52,9 @@ class TemplateTimings(DebugPanel):
     template = "debug_toolbar_template_timings.html"
     has_content = True
 
+    def _get_timings(self):
+        return getattr(results, "timings", None)
+
     def nav_title(self):
         return 'Template Timings'
 
@@ -62,7 +65,10 @@ class TemplateTimings(DebugPanel):
         return ''
 
     def process_response(self, request, response):
+        timings = self._get_timings()
         if TEMPLATE_TIMINGS_SETTINGS['PRINT_TIMINGS']:
-            print getattr(results, "timings", None)
-        self.record_stats({"template_timings": getattr(results, "timings", None)})
-
+            print timings
+        # Setting default_factory to None allows us to access
+        # template_timings.iteritems in the template.
+        timings.default_factory = None
+        self.record_stats({"template_timings": timings})

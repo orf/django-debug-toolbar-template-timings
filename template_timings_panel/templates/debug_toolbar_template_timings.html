@@ -1,38 +1,20 @@
-<h4>Templates</h4>
+{% for section, timings in template_timings.items %}
+<h4>{{ section|title }}</h4>
 
 <table>
     <thead>
-    <tr>
-        <th>Name</th>
-        <th>Time Taken</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    {% for name, time in template_timings.templates.items %}
-    <tr class="{% cycle 'djDebugOdd' 'djDebugEven' %}">
-        <td>{{ name }}</td>
-        <td>{{ time }} ms</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
-
-<h4>Blocks</h4>
-<table>
+        <tr>
+            <th>Name</th>
+            <th>Time Taken</th>
+        </tr>
     <thead>
-    <tr>
-        <th>Name</th>
-        <th>Time Taken</th>
-    </tr>
-    </thead>
-
     <tbody>
-    {% for name, time in template_timings.blocks.items %}
-    <tr class="{% cycle 'djDebugOdd' 'djDebugEven' %}">
-        <td>{{ name }}</td>
-        <td>{{ time }} ms</td>
-    </tr>
-    {% endfor %}
+        {% for name, time in timings.items %}
+        <tr class="{% cycle 'djDebugOdd' 'djDebugEven' %}">
+            <td>{{ name }}</td>
+            <td>{{ time }} ms</td>
+        </tr>
+        {% endfor %}
     </tbody>
 </table>
+{% endfor %}
