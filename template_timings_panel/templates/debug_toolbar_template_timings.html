@@ -4,15 +4,23 @@
 <table>
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Time Taken</th>
+        <th>Name</th>
+        <th>Average Time</th>
+        <th>Times</th>
+        <th>Total time</th>
+        <th>Min. time</th>
+        <th>Max. time</th>
         </tr>
     <thead>
     <tbody>
-        {% for name, time in timings.items %}
+        {% for name, infos in timings.items %}
         <tr class="{% cycle 'djDebugOdd' 'djDebugEven' %}">
-            <td>{{ name }}</td>
-            <td>{{ time }} ms</td>
+        <td>{{ name }}</td>
+        <td>{{ infos.avg|floatformat }} ms</td>
+        <td>{{ infos.count }}</td>
+        <td>{{ infos.total|floatformat }} ms</td>
+        <td>{{ infos.min|floatformat }} ms</td>
+        <td>{{ infos.max|floatformat }} ms</td>
         </tr>
         {% endfor %}
     </tbody>

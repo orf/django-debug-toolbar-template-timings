@@ -28,12 +28,28 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
 
         start_time = time.time()
         result = func(self, *args, **kwargs)
-        time_taken = int(round((time.time() - start_time) * 1000))
+        time_taken = (time.time() - start_time) * 1000.0
 
-        if should_add(name(self)):
-            results.timings[key][name(self)] = time_taken
+        name_self = name(self)
+        if should_add(name_self):
+            if name_self not in results.timings[key]:
+                results.timings[key][name_self] = {
+                    'count': 0,
+                    'min': None,
+                    'max': None,
+                    'total': 0,
+                    'avg': 0,
+                }
+            results_part = results.timings[key][name_self]
+            if results_part['min'] is None or time_taken < results_part['min']:
+                results_part['min'] = time_taken
+            if results_part['max'] is None or time_taken > results_part['max']:
+                results_part['max'] = time_taken
+            results_part['count'] += 1
+            results_part['total'] += time_taken
+            results_part['avg'] = results_part['total'] / results_part['count']
             if TEMPLATE_TIMINGS_SETTINGS['PRINT_TIMINGS']:
-                print "%s %s took %s" % (key, name(self), time_taken)
+                print "%s %s took %.1f" % (key, name_self, time_taken)
 
         return result
 
