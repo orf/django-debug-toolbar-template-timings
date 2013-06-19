@@ -10,6 +10,7 @@
         <th>Total time</th>
         <th>Min. time</th>
         <th>Max. time</th>
+        <th>Queries</th>
         </tr>
     <thead>
     <tbody>
@@ -21,6 +22,7 @@
         <td>{{ infos.total|floatformat }} ms</td>
         <td>{{ infos.min|floatformat }} ms</td>
         <td>{{ infos.max|floatformat }} ms</td>
+        <td>{{ infos.queries }}</td>
         </tr>
         {% endfor %}
     </tbody>
