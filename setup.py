@@ -13,7 +13,7 @@ setup(
     version='0.4.1',
     packages=['template_timings_panel', 'template_timings_panel.panels'],
     package_data={'': ['templates/*']},
-    url='',
+    url='https://github.com/orf/django-debug-toolbar-template-timings',
     license=license,
     author='Tom Forbes',
     author_email='tom@tomforb.es',
