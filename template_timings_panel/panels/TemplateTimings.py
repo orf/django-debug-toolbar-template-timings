@@ -2,11 +2,36 @@ from debug_toolbar.panels import DebugPanel
 from django.conf import settings
 from django.template.base import Template
 from django.template.loader_tags import BlockNode, IncludeNode, ConstantIncludeNode
+from django.db import connection
+from debug_toolbar.utils.tracking.db import CursorWrapper
+from debug_toolbar.utils.tracking import replace_call
+from debug_toolbar.middleware import DebugToolbarMiddleware
+from debug_toolbar.panels import sql
+from django.db.backends import BaseDatabaseWrapper
 import threading
 import functools
 import time
 import re
 import collections
+
+
+class _logger(sql.SQLDebugPanel):
+    def record(self, alias, **kwargs):
+        if hasattr(results, "_current_template"):
+            results.timings[results._current_key][results._current_template]["queries"] += 1
+            #print "Template: %s executed query %s" % (results._current_template, str(kwargs))
+
+
+@replace_call(BaseDatabaseWrapper.cursor)
+def cursor(func, self):
+    result = func(self)
+
+    djdt = DebugToolbarMiddleware.get_current()
+    if not djdt:
+        return result
+
+    return CursorWrapper(result, self, logger=_logger())
+
 
 results = threading.local()
 
@@ -31,23 +56,37 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
             # template being rendered, and its total execution time encompasses all of the sub-templates rendering
             # time. We use this to display the rendering time on the sidebar
             results._count = 0
+            results._current_template = name(self)
+            results._current_key = key
+
+        name_self = name(self)
+
+        if name_self not in results.timings[key] and should_add(name_self):
+            results.timings[key][name_self] = {
+                'count': 0,
+                'min': None,
+                'max': None,
+                'total': 0,
+                'avg': 0,
+                'is_base': False,
+                'queries': 0
+            }
 
         results._count += 1
+        _old_current = results._current_template
+        _old_key = results._current_key
+
+        results._current_template = name_self
+        results._current_key = key
+
         start_time = time.time()
         result = func(self, *args, **kwargs)
         time_taken = (time.time() - start_time) * 1000.0
 
-        name_self = name(self)
+        results._current_template = _old_current
+        results._current_key = _old_key
+
         if should_add(name_self):
-            if name_self not in results.timings[key]:
-                results.timings[key][name_self] = {
-                    'count': 0,
-                    'min': None,
-                    'max': None,
-                    'total': 0,
-                    'avg': 0,
-                    'is_base': False
-                }
             results_part = results.timings[key][name_self]
             if results_part['min'] is None or time_taken < results_part['min']:
                 results_part['min'] = time_taken
@@ -88,6 +127,12 @@ class TemplateTimings(DebugPanel):
 
     def nav_subtitle(self):
         results = self._get_timings()
+
+        total_template_queries = sum(
+            sum(results[name][template_name]["queries"] for template_name in results[name])
+            for name in results
+        )
+
         base_template = filter(lambda i: results["templates"][i]["is_base"] == True, results["templates"].keys())
 
         if not len(base_template) == 1:
@@ -96,7 +141,7 @@ class TemplateTimings(DebugPanel):
             base_template = base_template[0]
             base_time = results["templates"][base_template]["total"]
 
-            return "%.0f ms %s" % (base_time, base_template)
+            return "%.0f ms with %s queries" % (base_time, total_template_queries)
 
     def title(self):
         return 'Template Timings'
