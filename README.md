@@ -19,4 +19,4 @@ To suppress output to the console add the following to your ``settings``:
     }
 
 ### Preview
-![](http://i.imgur.com/RyErSQn.png)
+![](http://i.imgur.com/GBmvx6T.png)
