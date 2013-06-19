@@ -142,6 +142,11 @@ class TemplateTimings(DebugPanel):
             for name in results
         )
 
+        total_template_query_time = sum(
+            sum(results[name][template_name]["query_duration"] for template_name in results[name])
+            for name in results
+        )
+
         base_template = filter(lambda i: results["templates"][i]["is_base"] == True, results["templates"].keys())
 
         if not len(base_template) == 1:
@@ -149,8 +154,11 @@ class TemplateTimings(DebugPanel):
         else:
             base_template = base_template[0]
             base_time = results["templates"][base_template]["total"]
+            query_percentage_time = ""
+            if total_template_query_time > 0:
+                query_percentage_time = "(%.2f%% SQL)" % ((float(total_template_query_time) / float(base_time)) * 100)
 
-            return "%.0f ms with %s queries" % (base_time, total_template_queries)
+            return "%.0f ms with %s queries %s" % (base_time, total_template_queries, query_percentage_time)
 
     def title(self):
         return 'Template Timings'
