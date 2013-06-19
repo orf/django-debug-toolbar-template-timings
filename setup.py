@@ -7,7 +7,7 @@ with open('LICENSE') as f:
 
 setup(
     name='django-debug-toolbar-template-timings',
-    version='0.2',
+    version='0.3',
     packages=['template_timings_panel', 'template_timings_panel.panels'],
     package_data={'': ['templates/*']},
     url='',
