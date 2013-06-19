@@ -8,6 +8,7 @@ from debug_toolbar.utils.tracking import replace_call
 from debug_toolbar.middleware import DebugToolbarMiddleware
 from debug_toolbar.panels import sql
 from django.db.backends import BaseDatabaseWrapper
+from django import template
 import threading
 import functools
 import time
@@ -15,10 +16,14 @@ import re
 import collections
 
 
+
 class _logger(sql.SQLDebugPanel):
     def record(self, alias, **kwargs):
         if hasattr(results, "_current_template"):
-            results.timings[results._current_key][results._current_template]["queries"] += 1
+            part = results.timings[results._current_key][results._current_template]
+            part["queries"] += 1
+            part["query_duration"] += kwargs["duration"]
+            #print kwargs["duration"]
             #print "Template: %s executed query %s" % (results._current_template, str(kwargs))
 
 
@@ -56,6 +61,8 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
             # template being rendered, and its total execution time encompasses all of the sub-templates rendering
             # time. We use this to display the rendering time on the sidebar
             results._count = 0
+            # These two values are used with the SQL counter. We store the current key and template name
+            # so that the _logger can get to the current template being rendered.
             results._current_template = name(self)
             results._current_key = key
 
@@ -69,7 +76,8 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
                 'total': 0,
                 'avg': 0,
                 'is_base': False,
-                'queries': 0
+                'queries': 0,
+                'query_duration': 0
             }
 
         results._count += 1
@@ -88,14 +96,15 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
 
         if should_add(name_self):
             results_part = results.timings[key][name_self]
-            if results_part['min'] is None or time_taken < results_part['min']:
-                results_part['min'] = time_taken
-            if results_part['max'] is None or time_taken > results_part['max']:
-                results_part['max'] = time_taken
+            results_part["min"] = min(time_taken, results_part["min"])
+            results_part["max"] = max(time_taken, results_part["max"])
+
             results_part['count'] += 1
             results_part['total'] += time_taken
             results_part['avg'] = results_part['total'] / results_part['count']
             results_part["is_base"] = results._count == 1
+            if results_part["queries"] > 0:
+                results_part["sql_percentage"] =  "%.2f%%" % ((float(results_part["query_duration"]) / float(results_part["total"])) * 100)
 
             if TEMPLATE_TIMINGS_SETTINGS['PRINT_TIMINGS']:
                 print "%s %s took %.1f" % (key, name_self, time_taken)
