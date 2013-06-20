@@ -10,7 +10,7 @@ if os.path.isfile("LICENSE"):
 
 setup(
     name='django-debug-toolbar-template-timings',
-    version='0.4.3',
+    version='0.4.4',
     packages=['template_timings_panel', 'template_timings_panel.panels'],
     package_data={'': ['templates/*']},
     url='https://github.com/orf/django-debug-toolbar-template-timings',
