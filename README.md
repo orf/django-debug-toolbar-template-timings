@@ -17,4 +17,4 @@ Configuration is optional. There are two settings you can configure (the values 
 
 
 ### Preview
-![](http://i.imgur.com/GBmvx6T.png)
+![](http://i.imgur.com/5krqT6P.png)
