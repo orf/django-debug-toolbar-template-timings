@@ -30,7 +30,7 @@ class _logger(sql.SQLDebugPanel):
             part["queries"] += 1
             part["query_duration"] += kwargs["duration"]
 
-            logger.debug("Template: %s executed query %s" % (results._current_template, str(kwargs)))
+            logger.debug("Template: %s executed query %s" % (results._current_template, kwargs["raw_sql"]))
 
 
 @replace_call(BaseDatabaseWrapper.cursor)
