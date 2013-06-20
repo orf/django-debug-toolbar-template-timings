@@ -46,7 +46,8 @@ TEMPLATE_TIMINGS_SETTINGS = {
 }
 
 for k in TEMPLATE_TIMINGS_SETTINGS.keys():
-    TEMPLATE_TIMINGS_SETTINGS.update(getattr(settings, k, {}))
+    if hasattr(settings, k):
+        TEMPLATE_TIMINGS_SETTINGS[k] = getattr(settings, k)
 
 
 def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s: s.name):
