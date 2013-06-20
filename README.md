@@ -12,7 +12,7 @@ Install via pip (pip install django-debug-toolbar-template-timings). Then add __
 ### Configuration
 Configuration is optional. There are two settings you can configure (the values below are the default):
 
-    PRINT_TIMINGS = True # Print timings to the console
+    PRINT_TIMINGS = False # Print timings to the console
     IGNORED_TEMPLATES = ["debug_toolbar/*"] # Ignore these templates from the output
 
 
