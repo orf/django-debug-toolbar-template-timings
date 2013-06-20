@@ -14,17 +14,23 @@ import functools
 import time
 import re
 import collections
+import logging
 
+logger = logging.getLogger(__name__)
 
 
 class _logger(sql.SQLDebugPanel):
     def record(self, alias, **kwargs):
         if hasattr(results, "_current_template"):
+            if not results._current_key in results.timings or \
+                    not results._current_template in results.timings[results._current_key]:
+                return
+
             part = results.timings[results._current_key][results._current_template]
             part["queries"] += 1
             part["query_duration"] += kwargs["duration"]
-            #print kwargs["duration"]
-            #print "Template: %s executed query %s" % (results._current_template, str(kwargs))
+
+            logger.debug("Template: %s executed query %s" % (results._current_template, str(kwargs)))
 
 
 @replace_call(BaseDatabaseWrapper.cursor)
@@ -107,8 +113,7 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
             if results_part["queries"] > 0:
                 results_part["sql_percentage"] =  "%.2f%%" % ((float(results_part["query_duration"]) / float(results_part["total"])) * 100)
 
-            if TEMPLATE_TIMINGS_SETTINGS['PRINT_TIMINGS']:
-                print "%s %s took %.1f" % (key, name_self, time_taken)
+            logger.debug("%s %s took %.1f" % (key, name_self, time_taken))
 
         results._count -=1
         return result
@@ -151,7 +156,7 @@ class TemplateTimings(DebugPanel):
         base_template = filter(lambda i: results["templates"][i]["is_base"] == True, results["templates"].keys())
 
         if not len(base_template) == 1:
-            print "Found more than one base template, eek!"
+            logger.info("Found more than one base template: %s" % str(base_template))
         else:
             base_template = base_template[0]
             base_time = results["templates"][base_template]["total"]
@@ -169,8 +174,6 @@ class TemplateTimings(DebugPanel):
 
     def process_response(self, request, response):
         timings = self._get_timings()
-        if TEMPLATE_TIMINGS_SETTINGS['PRINT_TIMINGS']:
-            print timings
         # Setting default_factory to None allows us to access
         # template_timings.iteritems in the template.
         if timings is not None:
