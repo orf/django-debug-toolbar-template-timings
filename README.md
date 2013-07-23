@@ -10,9 +10,8 @@ Django doesn't give you much insight as to why a template might take a long time
 Install via pip (pip install django-debug-toolbar-template-timings). Then add __'template_timings_panel.panels.TemplateTimings.TemplateTimings'__ to your DEBUG_TOOLBAR_PANELS, and also add __'template_timings_panel'__ to your INSTALLED_APPS.
 
 ### Configuration
-Configuration is optional. There are two settings you can configure (the values below are the default):
+Configuration is optional. There is currently only one setting you can configure (the values below are the default):
 
-    PRINT_TIMINGS = False # Print timings to the console
     IGNORED_TEMPLATES = ["debug_toolbar/*"] # Ignore these templates from the output
 
 
