@@ -47,7 +47,6 @@ def cursor(func, self):
 results = threading.local()
 
 TEMPLATE_TIMINGS_SETTINGS = {
-    'PRINT_TIMINGS': False,
     'IGNORED_TEMPLATES': ["debug_toolbar/*"]
 }
 
