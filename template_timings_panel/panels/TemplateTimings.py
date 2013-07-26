@@ -110,7 +110,10 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
             results_part['avg'] = results_part['total'] / results_part['count']
             results_part["is_base"] = results._count == 1
             if results_part["queries"] > 0:
-                results_part["sql_percentage"] =  "%.2f%%" % ((float(results_part["query_duration"]) / float(results_part["total"])) * 100)
+                try:
+                    results_part["sql_percentage"] =  "%.2f%%" % ((float(results_part["query_duration"]) / float(results_part["total"])) * 100)
+                except ZeroDivisionError:
+                    results_part["sql_percentage"] = "0%"
 
             logger.debug("%s %s took %.1f" % (key, name_self, time_taken))
 
