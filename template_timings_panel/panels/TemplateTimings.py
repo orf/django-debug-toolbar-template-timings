@@ -74,6 +74,10 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
 
         name_self = name(self)
 
+        # Issue #11, sometimes for some reason accessing results.timings causes a KeyError.
+        if key not in results.timings:
+            results.timings[key] = {}
+
         if name_self not in results.timings[key] and should_add(name_self):
             results.timings.setdefault(key, {})[name_self] = {
                 'count': 0,
