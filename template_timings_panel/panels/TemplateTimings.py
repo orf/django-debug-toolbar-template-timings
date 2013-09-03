@@ -1,14 +1,10 @@
 from debug_toolbar.panels import DebugPanel
 from django.conf import settings
 from django.template.base import Template
-from django.template.loader_tags import BlockNode, IncludeNode, ConstantIncludeNode
-from django.db import connection
-from debug_toolbar.utils.tracking.db import CursorWrapper
+from django.template.loader_tags import BlockNode
 from debug_toolbar.utils.tracking import replace_call
-from debug_toolbar.middleware import DebugToolbarMiddleware
 from debug_toolbar.panels import sql
-from django.db.backends import BaseDatabaseWrapper
-from django import template
+from django.core.exceptions import ImproperlyConfigured
 import threading
 import functools
 import time
@@ -18,30 +14,25 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+if not "debug_toolbar.panels.sql.SQLDebugPanel" in settings.DEBUG_TOOLBAR_PANELS:
+    raise ImproperlyConfigured("debug_toolbar.panels.sql.SQLDebugPanel must be present in DEBUG_TOOLBAR_PANELS")
 
-class _logger(sql.SQLDebugPanel):
-    def record(self, alias, **kwargs):
-        if hasattr(results, "_current_template"):
-            if not results._current_key in results.timings or \
-                    not results._current_template in results.timings[results._current_key]:
-                return
+def record_query(**kwargs):
+    if hasattr(results, "_current_template"):
+        if not results._current_key in results.timings or \
+                not results._current_template in results.timings[results._current_key]:
+            return
 
-            part = results.timings[results._current_key][results._current_template]
-            part["queries"] += 1
-            part["query_duration"] += kwargs["duration"]
-
-            logger.debug("Template: %s executed query %s" % (results._current_template, kwargs["raw_sql"]))
+        part = results.timings[results._current_key][results._current_template]
+        part["queries"] += 1
+        part["query_duration"] += kwargs["duration"]
+        logger.debug("Template: %s executed query %s" % (results._current_template, kwargs["raw_sql"]))
 
 
-@replace_call(BaseDatabaseWrapper.cursor)
-def cursor(func, self):
-    result = func(self)
-
-    djdt = DebugToolbarMiddleware.get_current()
-    if not djdt:
-        return result
-
-    return CursorWrapper(result, self, logger=_logger())
+@replace_call(sql.SQLDebugPanel.record)
+def record(func, self, **kwargs):
+    record_query(**kwargs)
+    return func(self, **kwargs)
 
 
 results = threading.local()
@@ -75,11 +66,9 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
         name_self = name(self)
 
         # Issue #11, sometimes for some reason accessing results.timings causes a KeyError.
-        if key not in results.timings:
-            results.timings[key] = {}
 
         if name_self not in results.timings[key] and should_add(name_self):
-            results.timings.setdefault(key, {})[name_self] = {
+            results.timings[key][name_self] = {
                 'count': 0,
                 'min': None,
                 'max': None,
