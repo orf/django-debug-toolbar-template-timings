@@ -158,7 +158,7 @@ class TemplateTimings(DebugPanel):
             base_template = base_template[0]
             base_time = results["templates"][base_template]["total"]
             query_percentage_time = ""
-            if total_template_query_time > 0:
+            if total_template_query_time > 0 and base_time > 0:
                 query_percentage_time = "(%.2f%% SQL)" % ((float(total_template_query_time) / float(base_time)) * 100)
 
             return "%.0f ms with %s queries %s" % (base_time, total_template_queries, query_percentage_time)
