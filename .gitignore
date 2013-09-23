@@ -1,0 +1,9 @@
+*.py[co]
+develop-eggs
+dist/
+build/
+
+.project
+.pydevproject
+.settings
+.python-version
