@@ -46,7 +46,7 @@ for k in TEMPLATE_TIMINGS_SETTINGS.keys():
         TEMPLATE_TIMINGS_SETTINGS[k] = getattr(settings, k)
 
 
-def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s: s.name):
+def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s: s.name if s.name else ''):
 
     @functools.wraps(func)
     def timing_hook(self, *args, **kwargs):
@@ -106,13 +106,13 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
             results_part["is_base"] = results._count == 1
             if results_part["queries"] > 0:
                 try:
-                    results_part["sql_percentage"] =  "%.2f%%" % ((float(results_part["query_duration"]) / float(results_part["total"])) * 100)
+                    results_part["sql_percentage"] = "%.2f%%" % ((float(results_part["query_duration"]) / float(results_part["total"])) * 100)
                 except ZeroDivisionError:
                     results_part["sql_percentage"] = "0%"
 
             logger.debug("%s %s took %.1f" % (key, name_self, time_taken))
 
-        results._count -=1
+        results._count -= 1
         return result
 
     return timing_hook
