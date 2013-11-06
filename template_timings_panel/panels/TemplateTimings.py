@@ -2,7 +2,7 @@ from debug_toolbar.panels import DebugPanel
 from django.conf import settings
 from django.template.base import Template
 from django.template.loader_tags import BlockNode
-from debug_toolbar.utils.tracking import replace_call
+from debug_toolbar.utils.tracking import replace_method
 from debug_toolbar.panels import sql
 from django.core.exceptions import ImproperlyConfigured
 import threading
@@ -29,7 +29,7 @@ def record_query(**kwargs):
         logger.debug("Template: %s executed query %s" % (results._current_template, kwargs["raw_sql"]))
 
 
-@replace_call(sql.SQLDebugPanel.record)
+@replace_method(sql.SQLDebugPanel, "record")
 def record(func, self, **kwargs):
     record_query(**kwargs)
     return func(self, **kwargs)
