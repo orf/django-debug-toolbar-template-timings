@@ -2,7 +2,6 @@ from debug_toolbar.panels import DebugPanel
 from django.conf import settings
 from django.template.base import Template
 from django.template.loader_tags import BlockNode
-from debug_toolbar.utils.tracking import replace_method
 from debug_toolbar.panels import sql
 from django.core.exceptions import ImproperlyConfigured
 import threading
@@ -16,6 +15,25 @@ logger = logging.getLogger(__name__)
 
 if not "debug_toolbar.panels.sql.SQLDebugPanel" in settings.DEBUG_TOOLBAR_PANELS:
     raise ImproperlyConfigured("debug_toolbar.panels.sql.SQLDebugPanel must be present in DEBUG_TOOLBAR_PANELS")
+    
+    
+def replace_method(klass, method_name):
+    original = getattr(klass, method_name)
+
+    def inner(callback):
+        def wrapped(*args, **kwargs):
+            return callback(original, *args, **kwargs)
+
+        actual = getattr(original, '__wrapped__', original)
+        wrapped.__wrapped__ = actual
+        wrapped.__doc__ = getattr(actual, '__doc__', None)
+        wrapped.__name__ = actual.__name__
+
+        setattr(klass, method_name, wrapped)
+        return wrapped
+
+    return inner
+    
 
 def record_query(**kwargs):
     if hasattr(results, "_current_template"):
