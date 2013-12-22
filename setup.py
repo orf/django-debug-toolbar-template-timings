@@ -18,5 +18,5 @@ setup(
     author='Tom Forbes',
     author_email='tom@tomforb.es',
     description='A django-debug-toolbar panel that shows you template rendering times for Django',
-    install_requires=['Django', 'django-debug-toolbar>=0.10'],
+    install_requires=['Django', 'django-debug-toolbar>=1.0'],
 )

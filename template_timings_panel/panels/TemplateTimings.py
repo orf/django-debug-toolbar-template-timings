@@ -1,4 +1,4 @@
-from debug_toolbar.panels import DebugPanel
+from debug_toolbar.panels import Panel
 from django.conf import settings
 from django.template.base import Template
 from django.template.loader_tags import BlockNode
@@ -13,8 +13,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-if not "debug_toolbar.panels.sql.SQLDebugPanel" in settings.DEBUG_TOOLBAR_PANELS:
-    raise ImproperlyConfigured("debug_toolbar.panels.sql.SQLDebugPanel must be present in DEBUG_TOOLBAR_PANELS")
+if not "debug_toolbar.panels.sql.SQLPanel" in settings.DEBUG_TOOLBAR_PANELS:
+    raise ImproperlyConfigured("debug_toolbar.panels.sql.SQLPanel must be present in DEBUG_TOOLBAR_PANELS")
     
     
 def replace_method(klass, method_name):
@@ -47,7 +47,7 @@ def record_query(**kwargs):
         logger.debug("Template: %s executed query %s" % (results._current_template, kwargs["raw_sql"]))
 
 
-@replace_method(sql.SQLDebugPanel, "record")
+@replace_method(sql.SQLPanel, "record")
 def record(func, self, **kwargs):
     record_query(**kwargs)
     return func(self, **kwargs)
@@ -124,7 +124,8 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
             results_part["is_base"] = results._count == 1
             if results_part["queries"] > 0:
                 try:
-                    results_part["sql_percentage"] = "%.2f%%" % ((float(results_part["query_duration"]) / float(results_part["total"])) * 100)
+                    results_part["sql_percentage"] = "%.2f%%" % ((float(results_part["query_duration"]) /
+                                                                  float(results_part["total"])) * 100)
                 except ZeroDivisionError:
                     results_part["sql_percentage"] = "0%"
 
@@ -144,17 +145,20 @@ BlockNode.render = _template_render_wrapper(BlockNode.render, "blocks")
 #                                                      name=lambda s: s.template.name)
 
 
-class TemplateTimings(DebugPanel):
+class TemplateTimings(Panel):
     name = "TemplateTimingPanel"
     template = "debug_toolbar_template_timings.html"
+    title = 'Template Timings'
     has_content = True
 
     def _get_timings(self):
         return getattr(results, "timings", None)
 
+    @property
     def nav_title(self):
         return 'Template Timings'
 
+    @property
     def nav_subtitle(self):
         results = self._get_timings()
 
@@ -180,12 +184,6 @@ class TemplateTimings(DebugPanel):
                 query_percentage_time = "(%.2f%% SQL)" % ((float(total_template_query_time) / float(base_time)) * 100)
 
             return "%.0f ms with %s queries %s" % (base_time, total_template_queries, query_percentage_time)
-
-    def title(self):
-        return 'Template Timings'
-
-    def url(self):
-        return ''
 
     def process_response(self, request, response):
         timings = self._get_timings()
