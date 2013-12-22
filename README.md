@@ -6,6 +6,13 @@
 ### Why?
 Django doesn't give you much insight as to why a template might take a long time to render. A block inside a template I was using added significant overhead in a non-obvious way, and I wished I had something like this to show exactly where the bottlekneck was.
 
+### FAQ
+#### How much overhead does this add?
+In my experience this panel adds about 10% overhead. The panel uses the standard SQLPanel that ships with debug-toolbar to handle the SQL timings, so if you disable that the overhead will decrease and you can still see the render times.
+
+#### The SQL count is different from the SQLPanel?
+SQLPanel counts **all** queries that are executed, wherease this panel only counts queries that are executed while rendering a template.
+
 ### Install instructions
 Install via pip (pip install django-debug-toolbar-template-timings). Then add __'template_timings_panel.panels.TemplateTimings.TemplateTimings'__ to your DEBUG_TOOLBAR_PANELS, and also add __'template_timings_panel'__ to your INSTALLED_APPS.
 
