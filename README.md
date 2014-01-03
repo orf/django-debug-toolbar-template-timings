@@ -24,3 +24,7 @@ Configuration is optional. There is currently only one setting you can configure
 
 ### Preview
 ![](http://i.imgur.com/5krqT6P.png)
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/orf/django-debug-toolbar-template-timings/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
