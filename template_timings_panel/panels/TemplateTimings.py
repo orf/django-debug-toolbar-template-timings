@@ -90,8 +90,8 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
         if name_self not in results.timings[key] and should_add(name_self):
             results.timings.setdefault(key, {})[name_self] = {
                 'count': 0,
-                'min': None,
-                'max': None,
+                'min': 0,
+                'max': 0,
                 'total': 0,
                 'avg': 0,
                 'is_base': False,
@@ -134,15 +134,9 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
         results._count -= 1
         return result
 
-    return timing_hook
+    timing_hook.original = func
 
-Template.render = _template_render_wrapper(Template.render, "templates",
-                                           lambda n: not any([re.match(pattern, n)
-                                                              for pattern in TEMPLATE_TIMINGS_SETTINGS["IGNORED_TEMPLATES"]]))
-BlockNode.render = _template_render_wrapper(BlockNode.render, "blocks")
-#IncludeNode.render = _template_render_wrapper(IncludeNode.render, "includes", name=lambda s: s.template_name)
-#ConstantIncludeNode.render = _template_render_wrapper(ConstantIncludeNode.render, "includes",
-#                                                      name=lambda s: s.template.name)
+    return timing_hook
 
 
 class TemplateTimings(Panel):
@@ -157,6 +151,16 @@ class TemplateTimings(Panel):
     @property
     def nav_title(self):
         return 'Template Timings'
+
+    def enable_instrumentation(self):
+        Template.render = _template_render_wrapper(Template.render, "templates",
+                                           lambda n: not any([re.match(pattern, n)
+                                                              for pattern in TEMPLATE_TIMINGS_SETTINGS["IGNORED_TEMPLATES"]]))
+        BlockNode.render = _template_render_wrapper(BlockNode.render, "blocks")
+
+    def disable_instrumentation(self):
+        Template.render = Template.render.original
+        BlockNode.render = BlockNode.render.original
 
     @property
     def nav_subtitle(self):
