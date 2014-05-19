@@ -10,7 +10,7 @@ if os.path.isfile("LICENSE"):
 
 setup(
     name='django-debug-toolbar-template-timings',
-    version='0.5.5',
+    version='0.6.1',
     packages=['template_timings_panel', 'template_timings_panel.panels'],
     package_data={'': ['templates/*']},
     url='https://github.com/orf/django-debug-toolbar-template-timings',
@@ -19,4 +19,5 @@ setup(
     author_email='tom@tomforb.es',
     description='A django-debug-toolbar panel that shows you template rendering times for Django',
     install_requires=['Django', 'django-debug-toolbar>=1.0'],
+    long_description=open('README.rst').read(),
 )

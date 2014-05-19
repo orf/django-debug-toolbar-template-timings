@@ -1,6 +1,7 @@
 from debug_toolbar.panels import Panel
 from django.conf import settings
-from django.template.base import Template
+from django.template import base as template_base
+from django.template.base import Template, Library
 from django.template.loader_tags import BlockNode
 from debug_toolbar.panels import sql
 from django.core.exceptions import ImproperlyConfigured
@@ -13,10 +14,15 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# A set of nodes found by the tag_compiler. Used to patch during next request
+# and to unpatch the nodes.
+FOUND_GENERIC_NODES = set()
+
+
 if not "debug_toolbar.panels.sql.SQLPanel" in settings.DEBUG_TOOLBAR_PANELS:
     raise ImproperlyConfigured("debug_toolbar.panels.sql.SQLPanel must be present in DEBUG_TOOLBAR_PANELS")
-    
-    
+
+
 def replace_method(klass, method_name):
     original = getattr(klass, method_name)
 
@@ -33,7 +39,7 @@ def replace_method(klass, method_name):
         return wrapped
 
     return inner
-    
+
 
 def record_query(**kwargs):
     if hasattr(results, "_current_template"):
@@ -64,6 +70,27 @@ for k in TEMPLATE_TIMINGS_SETTINGS.keys():
         TEMPLATE_TIMINGS_SETTINGS[k] = getattr(settings, k)
 
 
+def _tag_compiler(func):
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if 'node_class' in kwargs:
+            wrap_generic_node(kwargs['node_class'], kwargs['name'])
+            FOUND_GENERIC_NODES.add((kwargs['node_class'], kwargs['name']))
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def wrap_generic_node(node, name):
+    if not hasattr(node.render, 'original'):
+            node.render = _template_render_wrapper(
+                node.render, node.__name__, name=lambda unused_: name)
+
+template_base.generic_tag_compiler = _tag_compiler(
+    template_base.generic_tag_compiler)
+
+
 def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s: s.name if s.name else ''):
 
     @functools.wraps(func)
@@ -90,8 +117,8 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
         if name_self not in results.timings[key] and should_add(name_self):
             results.timings.setdefault(key, {})[name_self] = {
                 'count': 0,
-                'min': None,
-                'max': None,
+                'min': 0,
+                'max': 0,
                 'total': 0,
                 'avg': 0,
                 'is_base': False,
@@ -134,15 +161,9 @@ def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s
         results._count -= 1
         return result
 
-    return timing_hook
+    timing_hook.original = func
 
-Template.render = _template_render_wrapper(Template.render, "templates",
-                                           lambda n: not any([re.match(pattern, n)
-                                                              for pattern in TEMPLATE_TIMINGS_SETTINGS["IGNORED_TEMPLATES"]]))
-BlockNode.render = _template_render_wrapper(BlockNode.render, "blocks")
-#IncludeNode.render = _template_render_wrapper(IncludeNode.render, "includes", name=lambda s: s.template_name)
-#ConstantIncludeNode.render = _template_render_wrapper(ConstantIncludeNode.render, "includes",
-#                                                      name=lambda s: s.template.name)
+    return timing_hook
 
 
 class TemplateTimings(Panel):
@@ -157,6 +178,23 @@ class TemplateTimings(Panel):
     @property
     def nav_title(self):
         return 'Template Timings'
+
+    def enable_instrumentation(self):
+        Template.render = _template_render_wrapper(Template.render, "templates",
+                                           lambda n: not any([re.match(pattern, n)
+                                                              for pattern in TEMPLATE_TIMINGS_SETTINGS["IGNORED_TEMPLATES"]]))
+        BlockNode.render = _template_render_wrapper(BlockNode.render, "blocks")
+
+        # Wrap the nodes which were found by earlier requests
+        for node, name in FOUND_GENERIC_NODES:
+            wrap_generic_node(node, name)
+
+    def disable_instrumentation(self):
+        Template.render = Template.render.original
+        BlockNode.render = BlockNode.render.original
+        for node, name in FOUND_GENERIC_NODES:
+            if hasattr(node.render, 'original'):
+                node.render = node.render.original
 
     @property
     def nav_subtitle(self):
