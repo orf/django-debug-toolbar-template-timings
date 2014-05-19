@@ -15,7 +15,7 @@
         </tr>
     <thead>
     <tbody>
-        {% for name, infos in timings.items %}
+        {% for name, infos in timings.items|dictsort:"avg" %}
         <tr class="{% cycle 'djDebugOdd' 'djDebugEven' %}">
         <td>{{ name }}</td>
         <td>{{ infos.avg|floatformat }} ms</td>
