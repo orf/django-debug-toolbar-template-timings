@@ -20,4 +20,18 @@ setup(
     description='A django-debug-toolbar panel that shows you template rendering times for Django',
     install_requires=['Django', 'django-debug-toolbar>=1.0'],
     long_description=open('README.rst').read(),
+    
+    classifiers=[
+          'Environment :: Web Environment',
+          'Framework :: Django',
+          'Intended Audience :: Developers',
+          'Operating System :: Unix',
+          'Programming Language :: Python',
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.3',
+          'Programming Language :: Python :: 3.4',
+          'Topic :: Software Development :: Debuggers']
+      )
 )
