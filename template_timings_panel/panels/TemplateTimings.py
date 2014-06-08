@@ -175,6 +175,18 @@ class TemplateTimings(Panel):
     def _get_timings(self):
         return getattr(results, "timings", None)
 
+    def _results_to_list(self, results):
+        returner = {}
+        for key, value in results.items():
+            returner[key] = []
+
+            for name, timings in value.items():
+                new_timings = {"name": name}
+                new_timings.update(timings)
+                returner[key].append(new_timings)
+
+        return returner
+
     @property
     def nav_title(self):
         return 'Template Timings'
@@ -190,11 +202,12 @@ class TemplateTimings(Panel):
             wrap_generic_node(node, name)
 
     def disable_instrumentation(self):
-        Template.render = Template.render.original
-        BlockNode.render = BlockNode.render.original
-        for node, name in FOUND_GENERIC_NODES:
-            if hasattr(node.render, 'original'):
-                node.render = node.render.original
+        if hasattr(Template.render, "original"):
+            Template.render = Template.render.original
+            BlockNode.render = BlockNode.render.original
+            for node, name in FOUND_GENERIC_NODES:
+                if hasattr(node.render, 'original'):
+                    node.render = node.render.original
 
     @property
     def nav_subtitle(self):
@@ -229,4 +242,4 @@ class TemplateTimings(Panel):
         # template_timings.iteritems in the template.
         if timings is not None:
             timings.default_factory = None
-        self.record_stats({"template_timings": timings})
+        self.record_stats({"template_timings": self._results_to_list(timings)})
