@@ -9,6 +9,7 @@ if os.path.isfile("LICENSE"):
 
 
 setup(
+    zip_ok=False,
     name='django-debug-toolbar-template-timings',
     version='0.6.2',
     packages=['template_timings_panel', 'template_timings_panel.panels'],
