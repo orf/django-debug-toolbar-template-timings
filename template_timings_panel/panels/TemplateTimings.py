@@ -223,7 +223,7 @@ class TemplateTimings(Panel):
             for name in results
         )
 
-        base_template = filter(lambda i: results["templates"][i]["is_base"] == True, results["templates"].keys())
+        base_template = list(filter(lambda i: results["templates"][i]["is_base"] == True, results["templates"].keys()))
 
         if not len(base_template) == 1:
             logger.info("Found more than one base template: %s" % str(base_template))
@@ -242,4 +242,5 @@ class TemplateTimings(Panel):
         # template_timings.iteritems in the template.
         if timings is not None:
             timings.default_factory = None
-        self.record_stats({"template_timings": self._results_to_list(timings)})
+            timings = self._results_to_list(timings)
+        self.record_stats({"template_timings": timings})
