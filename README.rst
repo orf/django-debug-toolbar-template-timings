@@ -22,6 +22,11 @@ Install via pip (pip install django-debug-toolbar-template-timings) then add 'te
     ]
 
 
+Screenshot
+==========
+.. image:: http://i.imgur.com/H2D48Uy.png
+
+
 Frequently asked questions
 ==========================
 **How much overhead does this add?**
