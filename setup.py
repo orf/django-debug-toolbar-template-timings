@@ -1,5 +1,5 @@
-from distutils.core import setup
 import os
+from setuptools import setup
 
 license = ""
 
