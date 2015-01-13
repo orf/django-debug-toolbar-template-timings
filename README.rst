@@ -2,6 +2,10 @@
 Template-Timings
 ================
 
+    .. image:: https://pypip.in/d/django-debug-toolbar-template-timings/badge.png
+             :target: https://pypi.python.org/pypi/django-debug-toolbar-template-timings
+
+
 Template-timings is a panel for Django Debug Toolbar that gives an in-dept breakdown of the time it takes to render your Django templates (including templates included via {% extends %} and {% include %}).
 
 
