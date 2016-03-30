@@ -1,7 +1,7 @@
 from debug_toolbar.panels import Panel
 from django.conf import settings
 from django.template import base as template_base
-from django.template.base import Template, Library
+from django.template import Template, Library
 from django.template.loader_tags import BlockNode
 from debug_toolbar.panels import sql
 from django.core.exceptions import ImproperlyConfigured
