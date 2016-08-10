@@ -1,6 +1,5 @@
 from debug_toolbar.panels import Panel
 from django.conf import settings
-from django.template import base as template_base
 from django.template import Template, Library
 from django.template.loader_tags import BlockNode
 from debug_toolbar.panels import sql
@@ -87,8 +86,7 @@ def wrap_generic_node(node, name):
             node.render = _template_render_wrapper(
                 node.render, node.__name__, name=lambda unused_: name)
 
-template_base.generic_tag_compiler = _tag_compiler(
-    template_base.generic_tag_compiler)
+Library.simple_tag = _tag_compiler(Library.simple_tag)
 
 
 def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s: s.name if s.name else ''):
