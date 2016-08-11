@@ -87,8 +87,10 @@ def wrap_generic_node(node, name):
             node.render = _template_render_wrapper(
                 node.render, node.__name__, name=lambda unused_: name)
 
-template_base.generic_tag_compiler = _tag_compiler(
-    template_base.generic_tag_compiler)
+try:
+    template_base.generic_tag_compiler = _tag_compiler(template_base.generic_tag_compiler)
+except:
+    Library.simple_tag = _tag_compiler(Library.simple_tag)
 
 
 def _template_render_wrapper(func, key, should_add=lambda n: True, name=lambda s: s.name if s.name else ''):
