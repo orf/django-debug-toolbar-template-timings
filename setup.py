@@ -17,7 +17,7 @@ if os.path.isfile("README.rst"):
 setup(
     zip_safe=False,
     name='django-debug-toolbar-template-timings',
-    version='0.6.6',
+    version='0.7',
     packages=['template_timings_panel', 'template_timings_panel.panels'],
     package_data={'': ['templates/*']},
     url='https://github.com/orf/django-debug-toolbar-template-timings',
