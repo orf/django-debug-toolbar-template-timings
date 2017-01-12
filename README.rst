@@ -13,7 +13,7 @@ Template-timings supports Django 1.8 and below, Django 1.9 and above do not work
 Install
 =======
 
-Install via pip (pip install django-debug-toolbar-template-timings) then add 'template_timings_panel.panels.TemplateTimings.TemplateTimings' to your DEBUG_TOOLBAR_PANELS setting, and add 'template_timings_panel' to your INSTALLED_APPS::
+Install via pip (`pip install django-debug-toolbar-template-timings`) then add `'template_timings_panel.panels.TemplateTimings.TemplateTimings'` to your `DEBUG_TOOLBAR_PANELS` setting, and add `'template_timings_panel'` to your `INSTALLED_APPS`::
 
     # http://django-debug-toolbar.readthedocs.org/en/latest/configuration.html#debug-toolbar-panels
     DEBUG_TOOLBAR_PANELS = [
