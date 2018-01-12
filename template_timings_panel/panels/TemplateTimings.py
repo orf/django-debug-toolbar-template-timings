@@ -175,7 +175,7 @@ class TemplateTimings(Panel):
     has_content = True
 
     def _get_timings(self):
-        return getattr(results, "timings", None)
+        return getattr(results, "timings", {})
 
     def _results_to_list(self, results):
         returner = {}
