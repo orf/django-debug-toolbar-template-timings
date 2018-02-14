@@ -14,7 +14,9 @@ Template-timings supports Django 1.8 and below, Django 1.9 and above do not work
 Install
 =======
 
-Install via pip (``pip install django-debug-toolbar-template-timings``) then add ``'template_timings_panel.panels.TemplateTimings.TemplateTimings'`` to your ``DEBUG_TOOLBAR_PANELS`` setting, and add ``'template_timings_panel'`` to your ``INSTALLED_APPS``::
+Install via pip (``pip install django-debug-toolbar-template-timings``) then add ``'template_timings_panel.panels.TemplateTimings.TemplateTimings'`` to your ``DEBUG_TOOLBAR_PANELS`` setting, and add ``'template_timings_panel'`` to your ``INSTALLED_APPS``:
+
+.. code:: python
 
     # http://django-debug-toolbar.readthedocs.org/en/latest/configuration.html#debug-toolbar-panels
     DEBUG_TOOLBAR_PANELS = [
@@ -46,6 +48,8 @@ SQLPanel counts **all** queries that are executed, wherease this panel only coun
 
 Configuration
 =============
-Configuration is optional. There is currently only one setting you can configure (the values below are the default)::
+Configuration is optional. There is currently only one setting you can configure (the values below are the default):
+
+.. code:: python
 
     IGNORED_TEMPLATES = ["debug_toolbar/*"] # Ignore these templates from the output
