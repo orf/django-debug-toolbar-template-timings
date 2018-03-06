@@ -9,7 +9,7 @@ Template-Timings
 
 Template-timings is a panel for Django Debug Toolbar that gives an in-dept breakdown of the time it takes to render your Django templates (including templates included via ``{% extends %}`` and ``{% include %}``).
 
-Template-timings supports Django 1.8 and below, Django 1.9 and above do not work at the moment.
+Template-timings supports Django 1.11 and below, Django 2.0 and above do not work at the moment.
 
 Install
 =======
